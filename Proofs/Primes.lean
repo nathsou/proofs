@@ -32,15 +32,24 @@ theorem composite_mp {n : Nat} : ¬(Prime n) → n ≤ 1 ∨ ∃k, k ∣ n ∧ k
   have h₁ : ¬(n > 1) ∨ ¬(∀k, k ∣ n → (k = 1 ∨ k = n)) := Decidable.not_and_iff_not_or_not.mp hnp
   match h₁ with
     | Or.inl h => Or.inl (Nat.le_of_not_lt h)
-    | Or.inr h => by grind
+    | Or.inr h =>
+      have h₂ : ∃k, ¬(k ∣ n → k = 1 ∨ k = n) := Classical.not_forall.mp h
+      have ⟨k, hk⟩ := h₂
+      have h₃ : k ∣ n ∧ ¬(k = 1 ∨ k = n) := Decidable.not_imp_iff_and_not.mp hk
+      have h₄ : ¬(k = 1 ∨ k = n) := h₃.right
+      have h₅ : k ≠ 1 ∧ k ≠ n := not_or.mp h₄
+      Or.inr ⟨k, ⟨h₃.left, h₅⟩⟩
 
 theorem exists_prime_div (n : Nat) (hn1 : n ≥ 2) : ∃p, p ∣ n ∧ Prime p := by
   by_cases h : Prime n
   . have h₁ : n ∣ n := Nat.dvd_refl n
     exact ⟨n, ⟨h₁, h⟩⟩
   . rcases composite_mp h with hl | hr
-    . omega
-    . have ⟨k, hk_dvd, hk1, hkn⟩ := hr
+    .
+      have h₂ : 1 < 1 := Nat.lt_of_lt_of_le (Nat.lt_of_succ_le hn1) hl
+      contradiction
+    .
+      have ⟨k, hk_dvd, hk1, hkn⟩ := hr
       have h₂ : n > 0 := Nat.zero_lt_of_lt hn1
       have h₃ : k ≤ n := Nat.le_of_dvd h₂ hk_dvd
       have h₄ : k < n := Nat.lt_of_le_of_ne h₃ hkn

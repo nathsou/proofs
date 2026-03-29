@@ -1,11 +1,12 @@
 # Proofs
 
 Formalisation of some mathematical results in Lean 4
-without using any external libraries.
+without any external libraries.
 
 ## Main Theorems
 
 - [Infinitude of Primes](./Proofs/Primes.lean)
+- [The square root of 2 is irrational](./Proofs/Sqrt2Irrational.lean)
 
 ## To do
 
