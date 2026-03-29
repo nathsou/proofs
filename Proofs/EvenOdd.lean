@@ -31,16 +31,29 @@ theorem even_and_odd_false {n : Nat} : ¬(Even n ∧ Odd n) := by
   contradiction
 
 /-- if n^2 is even, then n is even -/
-theorem sq_of_even_even {n : Nat} (hn2_even : Even (n^2)) : Even n := by
-  by_cases h : Odd n
-  .
-    have ⟨w, hw⟩ := h
-    have h₁ : n^2 = 4*w^2 + 4*w + 1 := by grind
-    have h₂ : n^2 = 2*(2*w^2 + 2*w) + 1 := by omega
-    have hn2_odd : Odd (n^2) := ⟨2*w^2 + 2*w, h₂⟩
-    exact False.elim (even_and_odd_false ⟨hn2_even, hn2_odd⟩)
-  .
-    exact not_odd_even h
+theorem pow2_even_imp_even {n : Nat} (hn2_even : Even (n^2)) : Even n := by
+  apply Classical.byContradiction
+  intro h
+  have ⟨w, hw⟩ : Odd n := not_even_odd h
+  have h₁ : n^2 = 4*w^2 + 4*w + 1 := by grind
+  have h₂ : n^2 = 2*(2*w^2 + 2*w) + 1 := by omega
+  have hn2_odd : Odd (n^2) := ⟨2*w^2 + 2*w, h₂⟩
+  exact even_and_odd_false ⟨hn2_even, hn2_odd⟩
+
+theorem pow2_of_even_is_even {n : Nat} (hne : Even n) : Even (n^2) :=
+  have ⟨w, hw⟩ := hne
+  have h₁ : n^2 = 2*(2*w^2) := by grind
+  ⟨2*w^2, h₁⟩
+
+theorem even_pow2_iff {n : Nat} : Even n ↔ Even (n^2) :=
+  ⟨pow2_of_even_is_even, pow2_even_imp_even⟩
+
+theorem two_pow_even {exp : Nat} (hpos : exp > 0) : Even (2^exp) := by
+  induction exp with
+    | zero => contradiction
+    | succ exp' ih =>
+      have h₁ : 2^(exp' + 1) = 2 * 2^exp' := by omega
+      exact ⟨2^exp', h₁⟩
 
 theorem gcd_of_evens_ge_two {a b : Nat} (ha : Even a) (hb : Even b) (hanz : a > 0) : Nat.gcd a b ≥ 2 := by
   have ⟨wa, hwa⟩ := ha
